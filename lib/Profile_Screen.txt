@@ -1,0 +1,292 @@
+import 'package:ecofriend/Components/ProfileInfoRow.dart';
+import 'package:ecofriend/Homescreen.dart';
+import 'package:ecofriend/Learn.dart';
+import 'package:ecofriend/Featured.dart';
+import 'package:ecofriend/Objects/JSONData.dart';
+import 'package:ecofriend/functions/Logout.dart';
+import 'package:ecofriend/functions/showScanOptions.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
+
+class MyProfileScreen extends StatefulWidget {
+  @override
+  State<MyProfileScreen> createState() => _MyProfileScreenState();
+}
+
+class _MyProfileScreenState extends State<MyProfileScreen> {
+  int _selectedIndex = 0;
+  String barcodeResult = 'No scan yet';
+  Map<dynamic, dynamic> _UserProfile = {};
+  late JsonStorage _jsonStorage;
+  late String name;
+  late String id;
+  late String email;
+  late int age;
+  late String location;
+  late String language;
+  late String gender;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                HomeScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              const begin = Offset(1.0, 0.0);
+              const end = Offset(0.0, 0.0);
+              const curve = Curves.easeInOut;
+
+              var tween =
+                  Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+              var offsetAnimation = animation.drive(tween);
+
+              return SlideTransition(
+                position: offsetAnimation,
+                child: child,
+              );
+            },
+          ),
+        );
+        break;
+      case 1:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ItemScreen(),
+          ),
+        );
+        break;
+      case 2:
+        break;
+      case 3:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LearnScreen(),
+          ),
+        );
+        break;
+      case 4:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MyProfileScreen(),
+          ),
+        );
+        break;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final box = Hive.box('UserInfo');
+    _jsonStorage = JsonStorage(box);
+    Map<dynamic, dynamic>? storedData =
+        Map<dynamic, dynamic>.from(_jsonStorage.getJsonData());
+    _UserProfile = storedData;
+    name = _UserProfile['user']?['name'] ?? "Andrew";
+    id = _UserProfile['user']?['id'] ?? "Unknown";
+    email = _UserProfile['user']?['email'] ?? "Unknown";
+    age = _UserProfile['user']?['age'] ?? "Unknown";
+    location = _UserProfile['user']?['location'] ?? "Unknown";
+    language = _UserProfile['user']?['language'] ?? "Unknown";
+    gender = _UserProfile['user']?['gender'] ?? "Unknown";
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            'My Profile',
+            style: TextStyle(
+              fontFamily: "CenturyGothic",
+              fontSize: 26,
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout, color: Color.fromARGB(255, 243, 86, 149)),
+            onPressed: () {
+              Logout(context);
+            },
+          ),
+        ],
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              elevation: 5,
+              color: Color.fromARGB(255, 248, 219, 219),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: CircleAvatar(
+                        radius: 40,
+                        backgroundImage: AssetImage('lib/images/profile.jpg'),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Center(
+                      child: Text(
+                        name,
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontFamily: 'CenturyGothic',
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 0, 0, 0),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Center(
+                      child: Text(
+                        id,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontFamily: 'CenturyGothic',
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ProfileInfoRow(
+                      icon: Icons.email_outlined,
+                      title: 'Email',
+                      value: email,
+                    ),
+                    Divider(
+                        height: 10,
+                        thickness: 1,
+                        color: Color.fromARGB(255, 248, 219, 219)),
+                    ProfileInfoRow(
+                      icon: Icons.cake_outlined,
+                      title: 'Age',
+                      value: age.toString(),
+                    ),
+                    Divider(
+                        height: 10,
+                        thickness: 1,
+                        color: Color.fromARGB(255, 248, 219, 219)),
+                    ProfileInfoRow(
+                      icon: Icons.person_outline,
+                      title: 'Gender',
+                      value: gender,
+                    ),
+                    Divider(
+                        height: 10,
+                        thickness: 1,
+                        color: Color.fromARGB(255, 248, 219, 219)),
+                    ProfileInfoRow(
+                      icon: Icons.location_on_outlined,
+                      title: 'Location',
+                      value: location,
+                    ),
+                    Divider(
+                        height: 10,
+                        thickness: 1,
+                        color: Color.fromARGB(255, 248, 219, 219)),
+                    ProfileInfoRow(
+                      icon: Icons.language_outlined,
+                      title: 'Language',
+                      value: language,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: FloatingActionButton(
+          onPressed: () {
+            showScanOptions(context);
+          },
+          backgroundColor: Color.fromARGB(255, 243, 86, 149),
+          child: const Icon(Icons.qr_code_scanner, color: Colors.white),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: Icon(
+                Icons.home,
+              ),
+            ),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: Icon(Icons.shopping_bag),
+            ),
+            label: 'Featured',
+          ),
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: Icon(
+                Icons.lightbulb,
+                color: Colors.transparent,
+              ),
+            ),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: Icon(Icons.lightbulb),
+            ),
+            label: 'Learn',
+          ),
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Icon(
+                Icons.person,
+                color: Color.fromARGB(255, 243, 86, 149),
+              ),
+            ),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        selectedItemColor: Colors.grey,
+        unselectedItemColor: Colors.grey,
+        showUnselectedLabels: true,
+      ),
+    );
+  }
+}

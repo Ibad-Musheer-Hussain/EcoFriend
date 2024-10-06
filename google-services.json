@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "463401482344",
+    "project_id": "ecofriend-8c85c",
+    "storage_bucket": "ecofriend-8c85c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:463401482344:android:cc3e6f205e47576cd6e3dd",
+        "android_client_info": {
+          "package_name": "com.company.ecofriend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGfTog-LH2mMjlygEs4JiZbnAYg_CPsug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:463401482344:android:263f507ed28ee163d6e3dd",
+        "android_client_info": {
+          "package_name": "com.example.ecofriend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGfTog-LH2mMjlygEs4JiZbnAYg_CPsug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

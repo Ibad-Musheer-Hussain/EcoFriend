@@ -1,0 +1,188 @@
+import 'dart:io';
+import 'package:lottie/lottie.dart';
+import 'package:flutter/material.dart';
+
+class ModalScanner extends StatefulWidget {
+  final File imageFile;
+  final String barcodeValue;
+
+  ModalScanner({
+    required this.imageFile,
+    required this.barcodeValue,
+  });
+
+  @override
+  State<ModalScanner> createState() => _ModalScannerState();
+}
+
+class _ModalScannerState extends State<ModalScanner> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showModalBottomSheet();
+    });
+  }
+
+  void _showModalBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      elevation: 2.0,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          snapAnimationDuration: Duration(milliseconds: 500),
+          shouldCloseOnMinExtent: false,
+          snap: true,
+          snapSizes: [0.3, 0.4, 0.8],
+          initialChildSize: 0.4,
+          minChildSize: 0.3,
+          maxChildSize: 0.8,
+          builder: (BuildContext context, ScrollController scrollController) {
+            return SingleChildScrollView(
+              controller: scrollController,
+              child: Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                padding: EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Barcode Information',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(onPressed: () {}, icon: Icon(Icons.refresh)),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      widget.barcodeValue,
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text('Close'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('Scan'),
+      ),
+      body: Column(
+        children: <Widget>[
+          Center(
+            child: Container(
+                height: 300,
+                width: 300,
+                child: Stack(children: [
+                  Container(
+                    child: Image.file(
+                      widget.imageFile,
+                      fit: BoxFit.cover,
+                      height: 300,
+                      width: 300,
+                    ),
+                  ),
+                  Lottie.asset('lib/images/scan3.json',
+                      reverse: true,
+                      height: 450,
+                      width: 450,
+                      fit: BoxFit.fitHeight),
+                ])),
+          ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                showDragHandle: true,
+                builder: (BuildContext context) {
+                  return DraggableScrollableSheet(
+                    expand: false,
+                    snapAnimationDuration: Duration(milliseconds: 500),
+                    shouldCloseOnMinExtent: false,
+                    snap: true,
+                    snapSizes: [0.3, 0.4, 0.8],
+                    initialChildSize: 0.4,
+                    minChildSize: 0.3,
+                    maxChildSize: 0.8,
+                    builder: (BuildContext context,
+                        ScrollController scrollController) {
+                      return SingleChildScrollView(
+                        controller: scrollController,
+                        child: Container(
+                          height: MediaQuery.of(context).size.height,
+                          width: MediaQuery.of(context).size.width,
+                          padding: EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Column(
+                            children: <Widget>[
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Barcode Information',
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  IconButton(
+                                      onPressed: () {},
+                                      icon: Icon(Icons.refresh)),
+                                ],
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                widget.barcodeValue,
+                                style: TextStyle(fontSize: 20),
+                              ),
+                              SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text('Close'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
+            },
+            child: Text('Show Barcode in Modal Sheet'),
+          ),
+        ],
+      ),
+    );
+  }
+}

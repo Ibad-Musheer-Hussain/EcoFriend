@@ -1,0 +1,152 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+class ProductDetailPage extends StatelessWidget {
+  final String barcode;
+
+  ProductDetailPage({required this.barcode});
+
+  Future<Map<String, dynamic>> fetchProductData(String barcode) async {
+    final response = await http.get(
+        Uri.parse('https://world.openfoodfacts.org/api/v2/product/$barcode'));
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load product data');
+    }
+  }
+
+  List<String> getPackagingTextList(Map<String, dynamic> product) {
+    List<String> packagingTextList = [];
+
+    // Add 'packaging_text_en' if available
+    if (product['packaging_text_en'] != null &&
+        product['packaging_text_en'].toString().trim().isNotEmpty) {
+      packagingTextList.add(product['packaging_text_en'].toString().trim());
+    }
+
+    // Add 'packaging_materials_tags' if available and it is a list
+    if (product['packaging_materials_tags'] is List) {
+      List<dynamic> packagingMaterialsTags =
+          product['packaging_materials_tags'];
+
+      for (var tag in packagingMaterialsTags) {
+        String cleanTag = tag.toString().trim().replaceAll('en:', '');
+        if (cleanTag.isNotEmpty) {
+          packagingTextList.add(cleanTag);
+        }
+      }
+    }
+
+    // Add default message if the list is empty
+    if (packagingTextList.isEmpty) {
+      packagingTextList.add('No Packaging information available');
+    }
+
+    return packagingTextList;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Product Details'),
+      ),
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: fetchProductData(barcode),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data == null) {
+            return Center(child: Text('No data available'));
+          }
+
+          final product = snapshot.data!['product'];
+
+          String categoriesText;
+          if (product['category_properties'] is Map) {
+            categoriesText = product['category_properties']
+                    ['ciqual_food_name:en'] ??
+                'No category';
+          } else {
+            categoriesText = 'No category';
+          }
+
+          List<Widget> ingredientWidgets = [];
+
+          if (product['ingredients'] is List) {
+            final ingredients = product['ingredients'] as List;
+
+            for (var ingredient in ingredients) {
+              if (ingredient['percent_estimate'] != null) {
+                String ingredientId =
+                    ingredient['id'].toString().replaceAll('en:', '');
+
+                double percentEstimate =
+                    (ingredient['percent_estimate'] as num).toDouble();
+                String formattedPercent = percentEstimate.toStringAsFixed(2);
+                ingredientWidgets.add(
+                  Text(
+                    '$ingredientId: $formattedPercent%',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                );
+              }
+            }
+          }
+
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ListView(
+              children: [
+                if (product['image_url'] != null)
+                  Image.network(product['image_url']),
+                SizedBox(height: 16),
+                Text(
+                  product['product_name'] != ''
+                      ? '${product['product_name']} ${product['quantity'] ?? ''}'
+                      : 'No name',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                Text('Brand: ${product['brands'] ?? 'No brand'}'),
+                SizedBox(height: 8),
+                Text('Category: $categoriesText'),
+                SizedBox(height: 8),
+                Text(
+                    'Ingredients: ${product['ingredients_text_en'] ?? 'No ingredients'}'),
+                SizedBox(height: 8),
+                Text('Nutritional Information:'),
+                if (product['nutriments'] != null) ...[
+                  Text(
+                      'Energy: ${product['nutriments']['energy-kcal_100g']} kcal per 100g'),
+                  Text('Fat: ${product['nutriments']['fat_100g']} g per 100g'),
+                  Text(
+                      'Carbohydrates: ${product['nutriments']['carbohydrates_100g']} g per 100g'),
+                  Text(
+                      'Proteins: ${product['nutriments']['proteins_100g']} g per 100g'),
+                ],
+                SizedBox(height: 8),
+                Text(
+                  'Packaging: ${getPackagingTextList(product).join(", ")}',
+                  style: TextStyle(fontSize: 16),
+                ),
+                Text(
+                  "Ecoscore: ${product['ecoscore_data']?['grade'] ?? 'Not Available'}",
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(height: 16),
+                Text('Estimated Ingredient Percentages:'),
+                ...ingredientWidgets,
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
