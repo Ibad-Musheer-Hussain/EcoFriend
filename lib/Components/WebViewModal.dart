@@ -15,10 +15,9 @@ class _WebViewModalState extends State<WebViewModal> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height *
-          0.9, // Set WebView height to 90% of the screen
+      height: MediaQuery.of(context).size.height * 0.9,
       child: WebViewWidget(
-        controller: _controller, // WebViewController to control the WebView
+        controller: _controller,
       ),
     );
   }
@@ -27,11 +26,10 @@ class _WebViewModalState extends State<WebViewModal> {
   void initState() {
     super.initState();
 
-    // Initialize the WebViewController and configure the WebView settings
     _controller = WebViewController()
       ..enableZoom(true)
-      ..setJavaScriptMode(JavaScriptMode.unrestricted) // Enable JavaScript
-      ..loadRequest(Uri.parse(widget.url)) // Load URL
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..loadRequest(Uri.parse(widget.url))
       ..setNavigationDelegate(NavigationDelegate(
         onPageFinished: (String url) {
           print('Page finished loading: $url');

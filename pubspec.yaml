@@ -53,6 +53,7 @@ dependencies:
   hive: ^2.0.4
   hive_flutter: ^1.1.0
   collection: ^1.16.0
+  firebase_storage: ^11.6.5
 
 dev_dependencies:
   flutter_test:
@@ -106,6 +107,7 @@ flutter:
     - lib/images/tip5.png
     - lib/images/tip6.png
     - lib/images/profile.jpg
+    - lib/images/download.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

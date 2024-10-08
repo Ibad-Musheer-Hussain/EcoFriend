@@ -1,3 +1,4 @@
+import 'package:ecofriend/AddProductFile.dart';
 import 'package:ecofriend/Components/ProductDetailView.dart';
 import 'package:ecofriend/Components/ProductServerView.dart';
 import 'package:ecofriend/functions/fetchProductData.dart';
@@ -71,13 +72,59 @@ Future<void> showProductDetails(BuildContext context, String barcode) async {
                     );
                   } else if (future2Snapshot.hasError ||
                       !future2Snapshot.hasData) {
-                    return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          'Error: Product not found in database. No backup data available.',
-                        ),
-                      ),
+                    return DraggableScrollableSheet(
+                      expand: false,
+                      snapAnimationDuration: const Duration(milliseconds: 500),
+                      snap: true,
+                      snapSizes: const [1.0],
+                      initialChildSize: 0.6,
+                      minChildSize: 0.3,
+                      maxChildSize: 1.0,
+                      builder: (BuildContext context,
+                          ScrollController scrollController) {
+                        return Container(
+                          height: 400,
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: 100,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(18.0),
+                                child: Text(
+                                    "Product not found. Contibute to this project by adding this product to our database",
+                                    style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                              SizedBox(
+                                height: 40,
+                              ),
+                              FloatingActionButton.extended(
+                                foregroundColor:
+                                    Color.fromARGB(255, 243, 86, 149),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Addproductfile(
+                                        barcode: barcode,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                label: Text(
+                                  "Contribute",
+                                  style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color.fromARGB(255, 243, 86, 149)),
+                                ),
+                              )
+                            ],
+                          ),
+                        );
+                      },
                     );
                   }
                   final product = future2Snapshot.data!;
